@@ -25,11 +25,9 @@ Route::middleware('auth')->group(function () {
     Route::resource('/kebutuhan-difabel', kebutuhanDifabelController::class);
     Route::get('/data-disabilitas', [DisabilitasController::class, 'getView']);
     Route::get('/difabel/export', [DisabilitasController::class, 'exportExcel'])->name('difabel.exportExcel');
+    Route::get('/difabel/export-pdf', [DisabilitasController::class, 'exportPdf'])->name('difabel.exportPdf');
     Route::get('/logout', [AuthController::class, 'logout']);
-    Route::get('/data-disabilitas', function () {
-        return view('admin.disabilitas');
-    });
-
+    
     // Administrator
     Route::middleware('administrator')->group(function () {
         Route::resource('/layanan-keperluan', LayananKeperluanController::class);

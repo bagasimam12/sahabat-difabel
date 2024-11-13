@@ -7,6 +7,7 @@ use App\Models\DisabilitasModel;
 use App\Models\JenisDisabilitasModel;
 use App\Models\KeperluanDisabilitasModel;
 use App\Models\LayananKeperluanModel;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -30,6 +31,21 @@ class DisabilitasController extends Controller
     public function exportExcel()
     {
         return Excel::download(new DifabelExport, 'difabel.xlsx');
+    }
+
+    public function exportPdf()
+    {
+        $data = DisabilitasModel::leftJoin('keperluan_disabilitas as kd', 'disabilitas.disabilitas_id', '=', 'kd.disabilitas_id')
+        ->leftJoin('keperluan_layanan as kl', 'kd.keperluan_layanan_id', '=', 'kl.keperluan_layanan_id')
+        ->leftJoin('jenis_disabilitas as jd', 'disabilitas.jenis_disabilitas_id', '=', 'jd.jenis_disabilitas_id')
+        ->select('disabilitas.disabilitas_id', 'disabilitas.nama_lengkap', 'disabilitas.jenis_kelamin', 'disabilitas.tanggal_lahir', 'disabilitas.tempat_lahir', 'disabilitas.alamat', 'disabilitas.jenis_disabilitas_id', 'disabilitas.pekerjaan', 'jd.nama AS nama_jenis_disabilitas', DB::raw("GROUP_CONCAT(kl.nama SEPARATOR ', ') as keperluan_disabilitas_list"))
+        ->groupBy('disabilitas.disabilitas_id', 'jd.nama')->get();
+
+        $pdf = Pdf::loadView('exports.pdf.difabel', ['data' => $data])
+            ->setPaper('a4', 'landscape');
+
+
+        return $pdf->download();
     }
 
     /**

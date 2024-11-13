@@ -26,7 +26,7 @@
                         @if (Auth::user()->role === 'admin')
                             <div>
                                 <a href="{{ route('difabel.exportExcel') }}" class="btn btn-warning btn-sm ">Export Excel</a>
-                                <a href="{{ route('difabel.exportExcel') }}" class="btn btn-primary btn-sm ">Export PDF</a>
+                                <a href="{{ route('difabel.exportPdf') }}" class="btn btn-primary btn-sm ">Export PDF</a>
                             </div>
                         @endif
                         </div>
