@@ -46,7 +46,7 @@ class UserController extends Controller
             );
         }
 
-        return redirect(route('manageuser.index'))->with('success', 'Berhasil');
+        return redirect(route('manageuser'))->with('success', 'Berhasil');
     }
 
     /**
@@ -65,6 +65,6 @@ class UserController extends Controller
     {
         User::find($id)->delete();
 
-        return redirect(route('manageuser.index'))->with('success', 'Berhasil Menghapus data');
+        return redirect(route('manageuser'))->with('success', 'Berhasil Menghapus data');
     }
 }

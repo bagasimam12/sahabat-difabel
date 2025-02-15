@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\LayananKeperluanModel;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 class LayananKeperluanController extends Controller
 {
@@ -32,7 +33,7 @@ class LayananKeperluanController extends Controller
             ]
         );
 
-        return redirect(route('layanan-keperluan.index'))->with('success', 'Berhasil');
+        return redirect(route('layanan-keperluan'))->with('success', 'Berhasil');
     }
 
     /**
@@ -50,6 +51,6 @@ class LayananKeperluanController extends Controller
     public function destroy($id)
     {
         LayananKeperluanModel::find($id)->delete();
-        return redirect(route('layanan-keperluan.index'))->with('success', 'Berhasil Menghapus data');
+        return redirect(route('layanan-keperluan'))->with('success', 'Berhasil Menghapus data');
     }
 }

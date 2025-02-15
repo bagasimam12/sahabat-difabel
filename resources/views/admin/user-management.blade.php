@@ -17,10 +17,15 @@
         <div class="col-lg-12">
           <div class="card-body">
             @if(session('success'))
-              <div class="alert alert-primary bg-primary text-light border-0 alert-dismissible fade show" role="alert">
-                {{ session('success') }}
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+              <div class="alert alert-success bg-success text-light border-0 alert-dismissible fade show" role="alert">
+              {{ session('success') }}
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
               </div>
+              <script>
+              setTimeout(function() {
+                $('.alert-success').alert('close');
+              }, 5000);
+              </script>
             @endif
 
             @if ($errors->any())
