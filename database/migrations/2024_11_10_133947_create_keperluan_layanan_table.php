@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('keperluan_layanan', function (Blueprint $table) {
             $table->increments('keperluan_layanan_id')->primary();
             $table->string('nama');
+            $table->integer('stock')->default(0);
         });
     }
 

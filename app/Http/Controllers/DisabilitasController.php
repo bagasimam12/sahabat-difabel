@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Jobs\reduceStockLayananKeperluan;
 
 class DisabilitasController extends Controller
 {
@@ -53,15 +54,57 @@ class DisabilitasController extends Controller
      */
     public function updateStatusKeperluan(Request $request, string $id)
     {
-        request()->validate([
+        $request->validate([
             'status_diterima' => 'required',
         ]);
 
-        $disabilitas = KeperluanDisabilitasModel::find($id);
-        $disabilitas->status_diterima = $request->status_diterima;
-        $disabilitas->save();
+        try {
+            $keperluanDisabilitas = KeperluanDisabilitasModel::find($id);
+            if (!$keperluanDisabilitas) {
+                throw new \Exception('Keperluan Disabilitas tidak ditemukan');
+            }
+
+            DB::transaction(function () use ($request, $keperluanDisabilitas) {
+                if ($request->status_diterima == 1) {
+                    $layananKeperluan = LayananKeperluanModel::find($keperluanDisabilitas->keperluan_layanan_id);
+                    if (!$layananKeperluan) {
+                        throw new \Exception('Layanan Keperluan tidak ditemukan');
+                    }
+
+                    if ($layananKeperluan->stock > 0 && $keperluanDisabilitas->status_diterima != 1) {
+                        $layananKeperluan->decrement('stock');
+                        $keperluanDisabilitas->status_diterima = $request->status_diterima;
+                        $keperluanDisabilitas->save();
+                    } else {
+                        throw new \Exception('Stock Layanan/Alat Bantu Habis');
+                    }
+                } else if ($request->status_diterima == 2) {
+                    if ($keperluanDisabilitas->status_diterima == 1) {
+                        $this->addStockLayananAlatBantu($keperluanDisabilitas);
+                    }
+                    $keperluanDisabilitas->status_diterima = $request->status_diterima;
+                    $keperluanDisabilitas->save();
+                }
+            });
 
         return response()->json(['status' => "success"]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'errors' => [
+                    'description' => [$e->getMessage()],
+                    'name' => ['Tidak bisa mengubah status']
+                ]
+            ], 500);
+        }
+    }
+
+    private function addStockLayananAlatBantu($keperluanDisabilitas)
+    {
+        $layananKeperluan = LayananKeperluanModel::find($keperluanDisabilitas->keperluan_layanan_id);
+        if (!$layananKeperluan) {
+            throw new \Exception('Layanan Keperluan tidak ditemukan');
+        }
+        $layananKeperluan->increment('stock');
     }
 
     public function index()
@@ -141,8 +184,11 @@ class DisabilitasController extends Controller
                 'nama_lengkap' => $disabilitas->nama_lengkap,
                 'jenis_kelamin' => $disabilitas->jenis_kelamin,
                 'ttl' => $disabilitas->tempat_lahir . ', ' . $disabilitas->tanggal_lahir,
+                'tanggal_lahir' => $disabilitas->tanggal_lahir,
+                'tempat_lahir' => $disabilitas->tempat_lahir,
                 'alamat' => $disabilitas->alamat,
                 'jenis_disabilitas' => $disabilitas->jenisDisabilitas->nama,
+                'jenis_disabilitas_id' => $disabilitas->jenis_disabilitas_id,
                 'pekerjaan' => $disabilitas->pekerjaan,
             ];
         } else {
@@ -202,8 +248,16 @@ class DisabilitasController extends Controller
      */
     public function destroy(string $id)
     {
-        DisabilitasModel::destroy($id);
-        KeperluanDisabilitasModel::where('disabilitas_id', $id)->destroy();
+        DB::transaction(function () use ($id) {
+            DisabilitasModel::where('disabilitas_id', $id)->delete();
+            $KeperluanDisabilitasQuery = KeperluanDisabilitasModel::where('disabilitas_id', $id);
+            foreach ($KeperluanDisabilitasQuery->get() as $keperluanDisabilitas) {
+                if ($keperluanDisabilitas->status_diterima == 1) {
+                    $this->addStockLayananAlatBantu($keperluanDisabilitas);
+                }
+            }
+            $KeperluanDisabilitasQuery->delete();
+        });
 
         return response()->json(['status' => "success"]);
     }

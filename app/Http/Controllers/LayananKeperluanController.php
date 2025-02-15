@@ -27,7 +27,8 @@ class LayananKeperluanController extends Controller
                 'keperluan_layanan_id' => $request->keperluan_layanan_id
             ],
             [
-                'nama' => $request->nama
+                'nama' => $request->nama,
+                'stock' => $request->stok
             ]
         );
 

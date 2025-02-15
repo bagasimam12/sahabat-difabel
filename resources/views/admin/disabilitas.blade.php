@@ -345,6 +345,8 @@
                     type: "GET",
                     success: function(response) {
                         let disabilitas = response.disabilitas;
+                        console.log(disabilitas);
+                        
                         $("#modalDialogScrollable .modal-title").text("Edit Data"); 
                         $("#alert-div").html("");
                         $("#error-div").html("");
@@ -708,22 +710,25 @@
                     },
                     error: function(response) {
                         if (typeof response.responseJSON.errors !== 'undefined') {
-                        let errors = response.responseJSON.errors;
-                        let descriptionValidation = "";
+                            let errors = response.responseJSON.errors;
+                            let descriptionValidation = "";
                         if (typeof errors.description !== 'undefined') {
-                            descriptionValidation = '<li>' + errors.description[0] + '</li>';
+                            descriptionValidation = errors.description[0];
                         }
                         let nameValidation = "";
                         if (typeof errors.name !== 'undefined') {
-                            nameValidation = '<li>' + errors.name[0] + '</li>';
+                            nameValidation = errors.name[0];
                         }
-                        let errorHtml = '<div class="alert alert-danger" role="alert">' +
-                            '<b>Validation Error!</b>' +
-                            '<ul>' + nameValidation + descriptionValidation + '</ul>' +
-                            '</div>';
-                            $("#error-div").html(errorHtml);            
-                        }
+                        
+                        let errorHtml = '<div class="alert alert-danger bg-danger text-light border-0 alert-dismissible fade show" role="alert"><strong>Error </strong>' +
+                            descriptionValidation +
+                            '<button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button></div>';
+
+                        $("#alert-div").html(errorHtml)         
+                        reloadTable();
+                        $("#ExtralargeModal").modal('hide');
                     }
+                }
                 });
                 
             }

@@ -38,7 +38,8 @@
                 <thead>
                   <tr>
                     <th scope="col">No</th>
-                    <th scope="col">Nama</th>
+                    <th scope="col">Layanan/Alat Bantu</th>
+                    <th scope="col">Stok</th>
                     <th scope="col" class="text-center">Aksi</th>
                   </tr>
                 </thead>
@@ -47,6 +48,7 @@
                   <tr>
                     <th scope="row">{{ $key+1 }}</th>
                     <td>{{ $keperluanLayanan->nama }}</td>
+                    <td>{{ $keperluanLayanan->stock }}</td>
                     <td class="d-flex justify-content-center">
                         <button class="btn btn-primary btn-sm edit_modal" style="margin-right: 10px;" value="{{ $keperluanLayanan->keperluan_layanan_id }}" ><i class="bi bi-pen"></i></button>
                         <form action="{{ route('layanan-keperluan.destroy', $keperluanLayanan->keperluan_layanan_id) }}" method="post" style="margin-left: 10px;">
@@ -81,6 +83,12 @@
                     <input type="text" name="nama" class="form-control" id="nama">
                   </div>
                 </div>
+                <div class="row mb-3">
+                  <label for="inputText" class="col-sm-2 col-form-label">Stok</label>
+                  <div class="col-sm-10">
+                    <input type="text" name="stok" class="form-control" id="stok">
+                  </div>
+                </div>
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Keluar</button>
@@ -95,6 +103,7 @@
         $(document).on("click", ".tambah_modal", function () {
           $("#keperluan_layanan_id").val("");
           $("#nama").val("");
+          $("#stok").val("");
           $("#modalDialogScrollable .modal-title").text("Tambah Data"); // Mengubah judul modal
           $("#modalDialogScrollable").modal("show"); // Menampilkan modal
         });
@@ -102,9 +111,12 @@
         $(document).on("click", ".edit_modal", function () {
             var keperluanLayananId = $(this).val();
             $.get("/layanan-keperluan/" + keperluanLayananId + "/edit", function (data) {
+              console.log(data);
+              
                 // Mengisi data ke dalam form
                 $("#keperluan_layanan_id").val(data.keperluan_layanan_id);
                 $("#nama").val(data.nama);
+                $("#stok").val(data.stock);
                 $("#modalDialogScrollable .modal-title").text("Edit Data"); // Mengubah judul modal
                 $("#modalDialogScrollable").modal("show"); // Menampilkan modal
             }).fail(function () {

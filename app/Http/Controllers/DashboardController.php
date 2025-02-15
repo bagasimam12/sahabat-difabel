@@ -23,7 +23,7 @@ class DashboardController extends Controller
             ->orderByDesc('created_at')->limit(5)->get();
 
         // Menambahkan logika untuk menentukan status
-        foreach ($disabilitas as $item) {
+        foreach ($disabilitas as $key => $item) {
             $statusCount = [
                 'disetujui' => 0,
                 'ditolak' => 0,
@@ -39,13 +39,18 @@ class DashboardController extends Controller
                     $statusCount['ditolak']++;
                 }
             }
+            // if ($key === 4) {
+            //     dd($statusCount);
+            // }
 
             // Menentukan status akhir
-            if ($statusCount['disetujui'] === count($item->keperluanDisabilitas)) {
+            if (count($item->keperluanDisabilitas) === 0) {
+                $status = 'Belum Ada Pengajuan';
+            } elseif ($statusCount['disetujui'] === count($item->keperluanDisabilitas)) {
                 $status = 'Disetujui Semua';
             } elseif ($statusCount['diajukan'] === count($item->keperluanDisabilitas)) {
                 $status = 'Diajukan';
-            } elseif ($statusCount['disetujui'] > 0 && $statusCount['ditolak'] > 0) {
+            } elseif ($statusCount['disetujui'] > $statusCount['ditolak']) {
                 $status = 'Disetujui Sebagian';
             } elseif ($statusCount['ditolak'] === count($item->keperluanDisabilitas)) {
                 $status = 'Ditolak Semua';
@@ -53,8 +58,7 @@ class DashboardController extends Controller
                 $status = 'Ditolak Sebagian';
             }
 
-            // Anda bisa menyimpan status ini ke dalam item atau melakukan sesuatu dengan status
-            $item->status = $status; // Misalnya menyimpan status ke dalam item
+            $item->status = $status;
         }
 
 
